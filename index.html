@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PritVis — Turn anything into a visualization</title>
+    <link rel="stylesheet" href="/static/css/pritvis.css">
+</head>
+<body data-theme="dark">
+    <div id="app">
+        <header class="topbar">
+            <div class="brand">
+                <span class="brand-mark">PV</span>
+                <div class="brand-text">
+                    <h1>PritVis</h1>
+                    <span class="tagline">Framework · Visualizer · Playground</span>
+                </div>
+            </div>
+            <div class="toolbar">
+                <button id="btn-plugins" class="tool-btn" title="Plugins">
+                    <span class="icon">⚡</span>
+                    <span class="label">Plugins</span>
+                </button>
+                <button id="btn-refresh" class="tool-btn" title="Refresh projects">
+                    <span class="icon">↻</span>
+                    <span class="label">Refresh</span>
+                </button>
+                <button id="btn-theme" class="tool-btn" title="Toggle theme">
+                    <span class="icon" id="theme-icon">◐</span>
+                    <span class="label" id="theme-label">Theme</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="workspace">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2>Project Stack</h2>
+                    <span id="project-count" class="count">0</span>
+                </div>
+                <div id="project-list" class="project-list">
+                    <div class="empty-state-mini">
+                        <p>No projects in <code>vp/</code></p>
+                        <p class="hint">Drop a .zip and refresh.</p>
+                    </div>
+                </div>
+                <div class="sidebar-footer">
+                    <div class="legend">
+                        <span class="badge safe">safe</span>
+                        <span class="badge warning">warn</span>
+                        <span class="badge dangerous">danger</span>
+                        <span class="badge unscanned">scan?</span>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="stage">
+                <iframe id="viewer" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" title="Project viewer"></iframe>
+                <div id="empty-stage" class="empty-stage">
+                    <div class="empty-content">
+                        <div class="empty-logo">PV</div>
+                        <h2>Select a visualization project</h2>
+                        <p>Projects from <code>vp/</code> will appear in the left stack.</p>
+                        <p class="hint">Click any item to load it. First load triggers a security scan.</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <footer class="statusbar">
+            <div class="status-left">
+                <span id="status-project">—</span>
+                <span id="status-state" class="state idle">idle</span>
+            </div>
+            <div class="status-right">
+                <span id="status-port">localhost:5026</span>
+                <span id="status-plugins">0 plugins</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Security Modal -->
+    <div id="security-modal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card">
+            <header class="modal-header">
+                <h3 id="scan-title">Security Scan</h3>
+                <button class="modal-close" aria-label="Close">×</button>
+            </header>
+            <div id="scan-body" class="modal-body">
+                <p>Scanning project files...</p>
+            </div>
+            <footer class="modal-footer">
+                <button id="btn-cancel-load" class="btn secondary">Cancel</button>
+                <button id="btn-trust-load" class="btn primary">Trust & Load</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Plugins Modal -->
+    <div id="plugins-modal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card">
+            <header class="modal-header">
+                <h3>Loaded Plugins</h3>
+                <button class="modal-close" aria-label="Close">×</button>
+            </header>
+            <div id="plugins-body" class="modal-body">
+                <ul id="plugin-list" class="plugin-list"></ul>
+            </div>
+            <footer class="modal-footer">
+                <button class="btn secondary modal-close-btn">Close</button>
+            </footer>
+        </div>
+    </div>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/pritvis.js"></script>
+</body>
+</html>

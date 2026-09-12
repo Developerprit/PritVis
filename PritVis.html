@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PritVis — Turn anything into a visualization</title>
+    <style>
+        :root {
+            --bg: #0b0c0f;
+            --bg-2: #111318;
+            --bg-3: #181b21;
+            --border: #2a2f3a;
+            --text: #e8eaed;
+            --muted: #9aa0a8;
+            --faint: #5f6775;
+            --accent: #22c55e;
+            --accent-dim: #15803d;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --mono: "JetBrains Mono", "Fira Code", Consolas, Monaco, "Courier New", monospace;
+        }
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 16px;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        code {
+            font-family: var(--mono);
+            background: var(--bg-3);
+            padding: 2px 6px;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            color: var(--accent);
+            font-size: 0.92em;
+        }
+
+        /* Nav */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 6vw;
+            background: rgba(11, 12, 15, 0.92);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(6px);
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            font-size: 18px;
+        }
+        .nav-mark {
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--accent); color: var(--bg);
+            border-radius: 4px; font-size: 13px;
+        }
+        .nav-links {
+            display: flex; gap: 28px;
+            font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em;
+        }
+        .nav-links a { color: var(--muted); }
+        .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 120px 6vw 80px;
+            border-bottom: 1px solid var(--border);
+        }
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent);
+            margin-bottom: 24px;
+        }
+        .hero-label::before {
+            content: "";
+            width: 8px; height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--accent);
+        }
+        .hero h1 {
+            font-size: clamp(42px, 7vw, 84px);
+            line-height: 1.05;
+            margin: 0 0 28px;
+            letter-spacing: -0.03em;
+            max-width: 900px;
+        }
+        .hero p.lead {
+            font-size: clamp(16px, 2vw, 20px);
+            color: var(--muted);
+            max-width: 640px;
+            margin: 0 0 40px;
+        }
+        .hero p.lead.zh {
+            margin-top: 14px;
+            font-size: 15px;
+        }
+        .cta-row {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 26px;
+            font-family: var(--mono);
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            transition: all 150ms ease;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .btn-primary:hover {
+            background: var(--accent-dim);
+            border-color: var(--accent-dim);
+        }
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+        }
+        .btn-secondary:hover {
+            background: var(--bg-3);
+        }
+
+        /* Sections */
+        section {
+            padding: 100px 6vw;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-head {
+            margin-bottom: 60px;
+        }
+        .section-head h2 {
+            font-size: clamp(26px, 3.5vw, 38px);
+            margin: 0 0 16px;
+        }
+        .section-head p {
+            color: var(--muted);
+            max-width: 620px;
+            margin: 0;
+        }
+        .section-head p.zh {
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        /* Feature grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+        .feature-card {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 28px;
+            transition: border-color 150ms ease;
+        }
+        .feature-card:hover { border-color: var(--border); border-left: 3px solid var(--accent); }
+        .feature-card h3 {
+            font-size: 15px;
+            margin: 0 0 10px;
+            color: var(--accent);
+        }
+        .feature-card p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .feature-card p.zh { margin-top: 8px; color: var(--faint); }
+
+        /* Steps */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 30px;
+            counter-reset: step;
+        }
+        .step {
+            position: relative;
+            padding: 28px;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+        .step::before {
+            counter-increment: step;
+            content: "0" counter(step);
+            position: absolute;
+            top: -16px;
+            left: 20px;
+            background: var(--bg);
+            color: var(--accent);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .step h3 { margin: 10px 0 8px; font-size: 15px; }
+        .step p { margin: 0; color: var(--muted); font-size: 13px; }
+        .step p.zh { margin-top: 8px; color: var(--faint); }
+
+        /* Code block */
+        .code-block {
+            background: var(--bg-3);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 24px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .code-block .comment { color: var(--faint); }
+        .code-block .kw { color: var(--accent); }
+        .code-block .str { color: var(--warning); }
+
+        /* Security table */
+        .status-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 20px;
+        }
+        .status-table th, .status-table td {
+            text-align: left;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+        .status-table th {
+            color: var(--faint);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-size: 11px;
+        }
+        .status-table td { color: var(--muted); }
+        .pill {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid transparent;
+        }
+        .pill.safe { background: rgba(34,197,94,0.12); color: var(--accent); border-color: var(--accent); }
+        .pill.warn { background: rgba(245,158,11,0.12); color: var(--warning); border-color: var(--warning); }
+        .pill.danger { background: rgba(239,68,68,0.12); color: var(--danger); border-color: var(--danger); }
+
+        /* Footer */
+        footer {
+            padding: 60px 6vw;
+            text-align: center;
+            color: var(--faint);
+            font-size: 12px;
+        }
+        footer a { color: var(--muted); }
+
+        @media (max-width: 720px) {
+            .nav-links { display: none; }
+            .hero { padding-top: 100px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">
+            <span class="nav-mark">PV</span>
+            <span>PritVis</span>
+        </div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#how">How it works</a>
+            <a href="#security">Security</a>
+            <a href="#plugins">Plugins</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-label">Framework · Visualizer · Playground</div>
+        <h1>Turn any code or anything into a visualization.</h1>
+        <p class="lead">PritVis is a local visualization shell. Drop HTML + Python projects as zip files, scan them for suspicious code, and launch them from a clean, terminal-style project stack.</p>
+        <p class="lead zh">PritVis 是一个本地可视化外壳。将 HTML + Python 项目打包成 zip 放入，自动扫描可疑代码，从终端风格的项目栈中一键启动。</p>
+        <div class="cta-row">
+            <a href="http://localhost:5026" class="btn btn-primary">Launch PritVis →</a>
+            <a href="https://github.com/Developerprit/PritVis" class="btn btn-secondary">GitHub</a>
+        </div>
+    </header>
+
+    <section id="features">
+        <div class="section-head">
+            <h2>Everything you need to run visualizations locally.</h2>
+            <p>A focused toolset for developers, data explorers, and creative coders who want a private, fast launcher for HTML+Python experiments.</p>
+            <p class="zh">为开发者、数据探索者和创意编码者打造的私有、快速启动器，用于运行 HTML + Python 实验项目。</p>
+        </div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>Local HTTP Server</h3>
+                <p>Runs on port 5026 with Python's standard library. No build tools, no dependencies.</p>
+                <p class="zh">基于 Python 标准库在 5026 端口运行。无需构建工具，零依赖。</p>
+            </div>
+            <div class="feature-card">
+                <h3>Project Stack</h3>
+                <p>Drop .zip files into vp/ and they appear in the left sidebar automatically.</p>
+                <p class="zh">将 .zip 放入 vp/，项目会自动出现在左侧边栏。</p>
+            </div>
+            <div class="feature-card">
+                <h3>Security Scan</h3>
+                <p>Static analysis of Python, JS and HTML before first load. Dangerous patterns require explicit trust.</p>
+                <p class="zh">首次加载前对 Python、JS、HTML 做静态分析，危险模式需显式信任。</p>
+            </div>
+            <div class="feature-card">
+                <h3>Light / Dark Themes</h3>
+                <p>Terminal-green aesthetic with monospace typography. Toggle instantly.</p>
+                <p class="zh">终端绿风格 + 等宽字体，支持一键切换浅色 / 深色主题。</p>
+            </div>
+            <div class="feature-card">
+                <h3>JS Plugin System</h3>
+                <p>Auto-load plugin/*.js files. Register hooks via window.PritVis.registerPlugin().</p>
+                <p class="zh">自动加载 plugin/*.js，通过 window.PritVis.registerPlugin() 注册钩子。</p>
+            </div>
+            <div class="feature-card">
+                <h3>Zero External Dependencies</h3>
+                <p>Pure Python + vanilla HTML/CSS/JS. Works offline and stays simple.</p>
+                <p class="zh">纯 Python + 原生 HTML/CSS/JS，离线可用，保持简洁。</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="how">
+        <div class="section-head">
+            <h2>Three steps to your first visualization.</h2>
+            <p>No configuration files, no deployment pipeline. Just zip, scan, and run.</p>
+            <p class="zh">无需配置文件，无需部署流程。打包、扫描、运行。</p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <h3>Package your project</h3>
+                <p>Create a zip with an index.html entry point and optional Python logic.</p>
+                <p class="zh">创建一个包含 index.html 入口和可选 Python 逻辑的 zip。</p>
+            </div>
+            <div class="step">
+                <h3>Drop it into vp/</h3>
+                <p>Place the zip in the vp/ folder next to server.py.</p>
+                <p class="zh">将 zip 放到 server.py 旁边的 vp/ 文件夹。</p>
+            </div>
+            <div class="step">
+                <h3>Launch from the stack</h3>
+                <p>Click the project in the left sidebar. PritVis scans it, then loads it in the viewer.</p>
+                <p class="zh">在左侧边栏点击项目，PritVis 扫描后加载到查看器。</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="security">
+        <div class="section-head">
+            <h2>Scan before you run.</h2>
+            <p>PritVis performs local static analysis on every project. Suspicious code is surfaced, not hidden.</p>
+            <p class="zh">PritVis 对每个项目进行本地静态分析，可疑代码会被展示而不是隐藏。</p>
+        </div>
+        <table class="status-table">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Meaning</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="pill safe">safe</span></td>
+                    <td>No suspicious patterns detected.</td>
+                    <td>Loads automatically.</td>
+                </tr>
+                <tr>
+                    <td><span class="pill warn">warning</span></td>
+                    <td>Some sensitive APIs were found (e.g. fetch, localStorage).</td>
+                    <td>Review scan report, then trust.</td>
+                </tr>
+                <tr>
+                    <td><span class="pill danger">dangerous</span></td>
+                    <td>Dangerous calls detected (eval, os.system, subprocess, etc.).</td>
+                    <td>Explicit trust required.</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="plugins">
+        <div class="section-head">
+            <h2>Extend with JavaScript plugins.</h2>
+            <p>Drop a .js file into plugin/ and register it with the global PritVis API.</p>
+            <p class="zh">将 .js 文件放入 plugin/ 目录，通过全局 PritVis API 注册。</p>
+        </div>
+        <div class="code-block">
+            <span class="comment">// plugin/example-plugin.js</span><br>
+            window.PritVis.registerPlugin({<br>
+            &nbsp;&nbsp;id: <span class="str">'my.plugin'</span>,<br>
+            &nbsp;&nbsp;name: <span class="str">'My Plugin'</span>,<br>
+            &nbsp;&nbsp;<span class="kw">init</span>() { console.log(<span class="str">'Plugin ready'</span>); },<br>
+            &nbsp;&nbsp;<span class="kw">onProjectLoad</span>(project) { console.log(project.name); }<br>
+            });
+        </div>
+    </section>
+
+    <footer>
+        <p>PritVis · Available License · <a href="https://github.com/Developerprit/PritVis">GitHub</a></p>
+        <p style="margin-top:8px;">PritVis 是一个能把任何代码或任何东西变成可视化的框架工具。</p>
+    </footer>
+</body>
+</html>
